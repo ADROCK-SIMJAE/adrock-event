@@ -123,131 +123,284 @@ export default function Home() {
 
   const showHint =
     state === "idle" || state === "running" || state === "lost";
-  const showBanner =
-    state === "won" || state === "lost" || state === "sent";
+
+  const isModal = state === "won" || state === "phone" || state === "sent";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden">
       <BackgroundVideo state={state} />
 
-      <section className="flex flex-col items-center gap-2.5 px-4 pt-[6dvh]">
-        <TimerDisplay value={displayTime} pulsing={state === "running"} />
-        {showHint && <HintPill />}
-        {showBanner && (
-          <div className="mt-1">
-            {state === "won" && (
-              <Banner tone="win">
-                <Star className="-top-2.5 -left-4" />
-                <Star className="-top-1 -right-4" />
-                당첨!
-              </Banner>
-            )}
-            {state === "lost" && <Banner tone="lose">아쉬워요!</Banner>}
-            {state === "sent" && (
-              <Banner tone="sent">
-                <Star className="-top-2.5 -left-4" />
-                <Star className="-top-1 -right-4" />
-                발송 완료!
-              </Banner>
-            )}
-          </div>
-        )}
-      </section>
-
-      <footer className="safe-pb fixed inset-x-0 bottom-0 z-20 px-4 pb-3 pt-6">
+      {state === "lost" && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-white/30 via-white/8 to-transparent"
+          className="pointer-events-none fixed inset-0 z-30 animate-red-flash bg-gradient-to-b from-red-500/60 via-red-500/20 to-transparent"
         />
-        <div className="mx-auto flex w-full max-w-[340px] flex-col items-center gap-2.5">
-          <Pill>
-            {state === "sent" ? (
-              <>
-                <strong className="mr-1 text-[#2a1f6b]">{phone}</strong>으로
-                보냈어요
-              </>
-            ) : (
-              primaryMessage[state]
+      )}
+
+      <section
+        className={`flex flex-col items-center gap-2 px-4 pt-[6dvh] ${state === "lost" ? "animate-shake" : ""}`}
+      >
+        <TimerDisplay value={displayTime} pulsing={state === "running"} />
+        {showHint && <HintPill />}
+      </section>
+
+      {!isModal && (
+        <footer className="safe-pb fixed inset-x-0 bottom-0 z-20 px-4 pb-3 pt-5">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-white/25 via-white/5 to-transparent"
+          />
+          <div
+            className={`mx-auto flex w-full max-w-[340px] flex-col items-center gap-2 ${state === "lost" ? "animate-shake" : ""}`}
+          >
+            <Pill>{primaryMessage[state]}</Pill>
+            <Coupon />
+
+            {state === "idle" && (
+              <PuffButton variant="start" onClick={startGame}>
+                START
+              </PuffButton>
             )}
-          </Pill>
+            {state === "running" && (
+              <PuffButton variant="stop" onClick={stopGame}>
+                STOP!
+              </PuffButton>
+            )}
+            {state === "lost" && (
+              <PuffButton variant="retry" onClick={reset}>
+                다시 도전
+              </PuffButton>
+            )}
+          </div>
+        </footer>
+      )}
 
-          <Coupon />
+      {state === "won" && (
+        <WinModal
+          displayTime={displayTime}
+          onClaim={goToPhoneInput}
+        />
+      )}
 
-          {state === "phone" && (
-            <form
-              onSubmit={handleSubmitPhone}
-              className="flex w-full flex-col items-center gap-2"
-            >
-              <label className="sr-only" htmlFor="phone">
-                휴대폰 번호
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                inputMode="numeric"
-                placeholder="010-0000-0000"
-                value={phone}
-                onChange={handlePhoneChange}
-                autoComplete="tel"
-                className="h-[52px] w-full rounded-full bg-white px-5 text-center text-[1.1rem] font-black tracking-wider text-[#2a1f6b] outline-none placeholder:font-bold placeholder:text-[#b4b8d9] shadow-[inset_0_2px_0_rgba(255,255,255,0.9),inset_0_-3px_6px_rgba(40,50,130,0.08),0_5px_0_#c9ceec,0_10px_18px_rgba(60,70,140,0.22)] focus:shadow-[inset_0_2px_0_rgba(255,255,255,0.9),inset_0_-3px_6px_rgba(40,50,130,0.1),0_5px_0_#9ba3dc,0_10px_18px_rgba(80,100,180,0.28)]"
-              />
-              {phoneError && (
-                <p className="rounded-full bg-[#ffe5de] px-3 py-1 text-[0.78rem] font-bold text-[#c64a28] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_2px_6px_rgba(180,60,40,0.2)]">
-                  {phoneError}
-                </p>
-              )}
-              <button type="submit" className="sr-only" aria-hidden>
-                submit
-              </button>
-            </form>
-          )}
+      {state === "phone" && (
+        <PhoneModal
+          phone={phone}
+          error={phoneError}
+          onChange={handlePhoneChange}
+          onSubmit={handleSubmitPhone}
+          onBack={() => setState("won")}
+        />
+      )}
 
-          {state === "phone" && (
-            <button
-              type="button"
-              onClick={() => setState("won")}
-              className="rounded-full bg-white/75 px-3 py-1 text-[0.78rem] font-bold text-[#4a3f8a] backdrop-blur-sm hover:underline"
-            >
-              이전으로
-            </button>
-          )}
-
-          {state === "idle" && (
-            <PuffButton variant="start" onClick={startGame}>
-              START
-            </PuffButton>
-          )}
-          {state === "running" && (
-            <PuffButton variant="stop" onClick={stopGame}>
-              STOP!
-            </PuffButton>
-          )}
-          {state === "lost" && (
-            <PuffButton variant="retry" onClick={reset}>
-              다시 도전
-            </PuffButton>
-          )}
-          {state === "won" && (
-            <PuffButton variant="claim" onClick={goToPhoneInput}>
-              쿠폰 발급받기
-            </PuffButton>
-          )}
-          {state === "phone" && (
-            <PuffButton
-              variant="claim"
-              onClick={() => handleSubmitPhone()}
-            >
-              쿠폰 발급받기
-            </PuffButton>
-          )}
-          {state === "sent" && (
-            <PuffButton variant="start" onClick={reset}>
-              처음으로
-            </PuffButton>
-          )}
-        </div>
-      </footer>
+      {state === "sent" && (
+        <SentModal phone={phone} onReset={reset} />
+      )}
     </main>
+  );
+}
+
+function ModalBackdrop({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      role="dialog"
+      aria-modal
+      className="safe-pb fixed inset-0 z-40 flex flex-col items-center justify-end px-4 pb-6 pt-[18dvh] animate-fade-backdrop"
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-black/0 via-black/15 to-black/45 backdrop-blur-[2px]"
+      />
+      {children}
+    </div>
+  );
+}
+
+function WinModal({
+  displayTime,
+  onClaim,
+}: {
+  displayTime: string;
+  onClaim: () => void;
+}) {
+  return (
+    <ModalBackdrop>
+      <Confetti />
+      <div className="flex w-full max-w-[340px] flex-col items-center gap-3 animate-burst-in">
+        <h2 className="relative text-[2.6rem] font-black italic -tracking-[0.02em] text-[#ff4d6b] [paint-order:stroke_fill] [-webkit-text-stroke:6px_#ffffff] [text-shadow:0_5px_0_#f4c41a,0_10px_16px_rgba(180,40,70,0.4)]">
+          <Star className="-top-3 -left-5" />
+          <Star className="-top-1 -right-5" />
+          <Star className="bottom-0 -left-6" />
+          당첨!
+        </h2>
+        <Pill>
+          <strong className="text-[#b94a00]">{displayTime}초</strong> 딱
+          맞췄어요!
+        </Pill>
+        <Coupon glow />
+        <PuffButton variant="claim" onClick={onClaim}>
+          쿠폰 발급받기
+        </PuffButton>
+      </div>
+    </ModalBackdrop>
+  );
+}
+
+function PhoneModal({
+  phone,
+  error,
+  onChange,
+  onSubmit,
+  onBack,
+}: {
+  phone: string;
+  error: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e?: FormEvent) => void;
+  onBack: () => void;
+}) {
+  return (
+    <ModalBackdrop>
+      <form
+        onSubmit={onSubmit}
+        className="flex w-full max-w-[340px] flex-col items-center gap-3 animate-burst-in rounded-[32px] border border-white/60 bg-white/90 px-5 py-6 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(30,40,90,0.35)] backdrop-blur-md"
+      >
+        <div className="flex flex-col items-center gap-1">
+          <h2 className="text-[1.5rem] font-black -tracking-[0.02em] text-[#2a1f6b]">
+            쿠폰 받을 번호 입력
+          </h2>
+          <p className="text-[0.82rem] font-bold text-[#4a3f8a]/85">
+            입력하신 번호로 문자로 쿠폰이 발송돼요
+          </p>
+        </div>
+
+        <Coupon />
+
+        <label className="sr-only" htmlFor="phone">
+          휴대폰 번호
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          inputMode="numeric"
+          placeholder="010-0000-0000"
+          value={phone}
+          onChange={onChange}
+          autoComplete="tel"
+          autoFocus
+          className="h-[58px] w-full rounded-2xl bg-white px-5 text-center text-[1.25rem] font-black tracking-wider text-[#2a1f6b] outline-none placeholder:font-bold placeholder:text-[#b4b8d9] shadow-[inset_0_2px_0_rgba(255,255,255,0.9),inset_0_-3px_6px_rgba(40,50,130,0.08),0_5px_0_#c9ceec,0_10px_18px_rgba(60,70,140,0.22)] focus:shadow-[inset_0_2px_0_rgba(255,255,255,0.9),inset_0_-3px_6px_rgba(40,50,130,0.12),0_5px_0_#9ba3dc,0_10px_18px_rgba(80,100,180,0.3)]"
+        />
+
+        {error && (
+          <p className="rounded-full bg-[#ffe5de] px-3 py-1 text-[0.82rem] font-bold text-[#c64a28] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_2px_6px_rgba(180,60,40,0.2)]">
+            {error}
+          </p>
+        )}
+
+        <div className="flex w-full flex-col items-center gap-2">
+          <PuffButton
+            variant="claim"
+            onClick={() => onSubmit()}
+          >
+            쿠폰 발급받기
+          </PuffButton>
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-[0.82rem] font-bold text-[#4a3f8a]/80 underline-offset-2 hover:underline"
+          >
+            이전으로
+          </button>
+        </div>
+
+        <button type="submit" className="sr-only" aria-hidden>
+          submit
+        </button>
+      </form>
+    </ModalBackdrop>
+  );
+}
+
+function SentModal({
+  phone,
+  onReset,
+}: {
+  phone: string;
+  onReset: () => void;
+}) {
+  return (
+    <ModalBackdrop>
+      <Confetti colors={["#5db7e6", "#7ae2a1", "#ffd24a", "#ffffff"]} />
+      <div className="flex w-full max-w-[340px] flex-col items-center gap-3 animate-burst-in rounded-[32px] border border-white/60 bg-white/92 px-5 py-6 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(30,90,60,0.3)] backdrop-blur-md">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-[#9fe9c3] to-[#3fb685] shadow-[inset_0_2px_0_rgba(255,255,255,0.7),0_6px_0_#1f7d56,0_10px_16px_rgba(30,125,86,0.4)]">
+          <svg
+            className="h-8 w-8"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M5 12.5l4.2 4.2L19 7"
+              stroke="#ffffff"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <h2 className="text-[1.9rem] font-black italic -tracking-[0.02em] text-[#2aa77a] [paint-order:stroke_fill] [-webkit-text-stroke:4px_#ffffff] [text-shadow:0_4px_0_#f4c41a,0_6px_12px_rgba(30,120,85,0.3)]">
+          발송 완료!
+        </h2>
+        <p className="rounded-full bg-white/85 px-4 py-1.5 text-[0.95rem] font-black text-[#1f3a5a] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_3px_8px_rgba(80,70,140,0.22)]">
+          {phone}
+        </p>
+        <p className="text-[0.88rem] font-bold text-[#4a3f8a]/85">
+          입력하신 번호로 쿠폰이 발송되었어요
+        </p>
+        <Coupon />
+        <PuffButton variant="start" onClick={onReset}>
+          처음으로
+        </PuffButton>
+      </div>
+    </ModalBackdrop>
+  );
+}
+
+function Confetti({
+  colors = ["#ff4d6b", "#ffd24a", "#5db7e6", "#a58fe2", "#7ae2a1"],
+}: {
+  colors?: string[];
+}) {
+  const pieces = Array.from({ length: 28 }, (_, i) => i);
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {pieces.map((i) => {
+        const color = colors[i % colors.length];
+        const left = (i * 37) % 100;
+        const delay = ((i * 73) % 800) / 1000;
+        const duration = 2 + ((i * 13) % 10) / 10;
+        const size = 6 + (i % 4) * 2;
+        const shape = i % 3 === 0 ? "50%" : "3px";
+        return (
+          <span
+            key={i}
+            className="absolute top-0 block animate-confetti"
+            style={{
+              left: `${left}%`,
+              width: `${size}px`,
+              height: `${size * 1.3}px`,
+              background: color,
+              borderRadius: shape,
+              animationDelay: `${delay}s`,
+              animationDuration: `${duration}s`,
+              boxShadow: `0 2px 4px rgba(0,0,0,0.15)`,
+            }}
+          />
+        );
+      })}
+    </div>
   );
 }
 
@@ -305,38 +458,10 @@ function Pill({ children }: { children: React.ReactNode }) {
 
 function HintPill() {
   return (
-    <div className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/88 px-3.5 py-1.5 text-[0.78rem] font-bold text-[#4a3f8a] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_3px_8px_rgba(80,70,140,0.22)] backdrop-blur-sm">
-      💡 <strong className="text-[#d17b00]">3.10 ~ 3.30초</strong> 사이에서
-      멈추면 당첨 확률 UP!
+    <div className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/55 px-3 py-1 text-[0.72rem] font-bold text-[#2a1f6b] shadow-[0_2px_6px_rgba(30,40,90,0.25)] backdrop-blur-md">
+      💡 <strong className="text-[#c27400]">3.10 ~ 3.30초</strong>
+      <span className="text-[#2a1f6b]/80">사이에서 멈추면 당첨 확률 UP!</span>
     </div>
-  );
-}
-
-function Banner({
-  tone,
-  children,
-}: {
-  tone: "win" | "lose" | "sent";
-  children: React.ReactNode;
-}) {
-  if (tone === "win") {
-    return (
-      <h2 className="relative text-[2.2rem] font-black italic -tracking-[0.02em] text-[#ff4d6b] animate-pop [paint-order:stroke_fill] [-webkit-text-stroke:5px_#ffffff] [text-shadow:0_4px_0_#f4c41a,0_8px_14px_rgba(180,40,70,0.35)]">
-        {children}
-      </h2>
-    );
-  }
-  if (tone === "sent") {
-    return (
-      <h2 className="relative text-[1.95rem] font-black italic -tracking-[0.02em] text-[#2aa77a] animate-pop [paint-order:stroke_fill] [-webkit-text-stroke:4px_#ffffff] [text-shadow:0_4px_0_#f4c41a,0_6px_12px_rgba(30,120,85,0.3)]">
-        {children}
-      </h2>
-    );
-  }
-  return (
-    <p className="text-[1.6rem] font-black italic -tracking-[0.02em] text-[#6c5dc7] animate-pop [paint-order:stroke_fill] [-webkit-text-stroke:4px_#ffffff] [text-shadow:0_3px_0_rgba(255,200,210,0.85),0_6px_10px_rgba(100,80,180,0.28)]">
-      {children}
-    </p>
   );
 }
 
@@ -358,16 +483,26 @@ function DecoBubble({ className = "" }: { className?: string }) {
   );
 }
 
-function Coupon() {
+function Coupon({ glow = false }: { glow?: boolean }) {
   return (
-    <div className="relative flex h-[82px] w-full max-w-[280px] items-center justify-center gap-2.5 rounded-[28px] px-4 py-2 bg-gradient-to-b from-[#fff6b3] via-[#ffdf4c] to-[#ffb400] shadow-[inset_0_3px_0_rgba(255,255,255,0.85),inset_0_-6px_10px_rgba(170,110,0,0.35),0_6px_0_#c58a00,0_14px_22px_rgba(160,100,0,0.3)]">
-      <DecoBubble className="-left-2 top-3 h-3 w-3" />
-      <DecoBubble className="-right-2 bottom-2 h-4 w-4" />
-      <DecoBubble className="right-6 -top-2 h-2 w-2" />
+    <div
+      className={`relative flex h-[66px] w-full max-w-[260px] items-center justify-center gap-2 rounded-[24px] px-3 py-1.5 bg-gradient-to-b from-[#fff6b3] via-[#ffdf4c] to-[#ffb400] shadow-[inset_0_2px_0_rgba(255,255,255,0.85),inset_0_-4px_8px_rgba(170,110,0,0.32),0_5px_0_#c58a00,0_10px_18px_rgba(160,100,0,0.28)] ${
+        glow ? "animate-float" : ""
+      }`}
+    >
+      {glow && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-[-8px] -z-10 rounded-[32px] bg-[#fff2a8]/55 blur-xl"
+        />
+      )}
+      <DecoBubble className="-left-1.5 top-2 h-2.5 w-2.5" />
+      <DecoBubble className="-right-1.5 bottom-1.5 h-3 w-3" />
+      <DecoBubble className="right-4 -top-1.5 h-2 w-2" />
 
-      <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-2px_4px_rgba(170,110,0,0.2)]">
+      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1.5px_3px_rgba(170,110,0,0.2)]">
         <svg
-          className="h-10 w-10"
+          className="h-8 w-8"
           viewBox="0 0 44 44"
           aria-hidden
           xmlns="http://www.w3.org/2000/svg"
@@ -400,11 +535,11 @@ function Coupon() {
           </text>
         </svg>
       </div>
-      <div className="flex flex-col items-start leading-[1.05]">
-        <span className="text-[1.75rem] font-black -tracking-[0.02em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_3px_0_rgba(255,255,255,0.9)]">
+      <div className="flex flex-col items-start leading-[1.02]">
+        <span className="text-[1.45rem] font-black -tracking-[0.02em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_2.5px_0_rgba(255,255,255,0.9)]">
           ₩1,000
         </span>
-        <span className="text-[0.98rem] font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]">
+        <span className="text-[0.84rem] font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]">
           세차 할인
         </span>
       </div>
