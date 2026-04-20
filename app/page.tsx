@@ -216,7 +216,7 @@ function ModalBackdrop({ children }: { children: React.ReactNode }) {
     >
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-black/20"
+        className="absolute inset-0 -z-10 bg-black/70"
       />
       {children}
     </div>
