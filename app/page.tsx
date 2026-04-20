@@ -138,23 +138,27 @@ export default function Home() {
       )}
 
       <section
-        className={`flex flex-col items-center gap-2 px-4 pt-[6dvh] ${state === "lost" ? "animate-shake" : ""}`}
+        className={`flex flex-col items-center gap-4 px-4 pt-[6dvh] ${state === "lost" ? "animate-shake" : ""}`}
       >
         <TimerDisplay value={displayTime} pulsing={state === "running"} />
         {showHint && <HintPill />}
       </section>
 
       {!isModal && (state === "idle" || state === "running") && (
-        <section className="pointer-events-none fixed inset-x-0 bottom-[130px] z-10 flex flex-col items-center gap-2 px-4">
-          <Pill>{primaryMessage[state]}</Pill>
-          <Coupon />
+        <section
+          className={`pointer-events-none fixed inset-x-0 z-10 flex justify-center px-4 transition-all duration-300 ${
+            state === "running"
+              ? "bottom-[28dvh]"
+              : "bottom-[150px]"
+          }`}
+        >
+          <Coupon compact={state === "running"} />
         </section>
       )}
 
       {!isModal && state === "lost" && (
-        <section className="pointer-events-none fixed inset-x-0 bottom-[130px] z-10 flex flex-col items-center gap-2 px-4 animate-shake">
+        <section className="pointer-events-none fixed inset-x-0 bottom-[150px] z-10 flex flex-col items-center gap-2 px-4 animate-shake">
           <LoseBanner />
-          <Pill>{primaryMessage[state]}</Pill>
         </section>
       )}
 
@@ -164,7 +168,10 @@ export default function Home() {
             aria-hidden
             className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-white/25 via-white/5 to-transparent"
           />
-          <div className="mx-auto flex w-full max-w-[340px] justify-center">
+          <div
+            className={`mx-auto flex w-full max-w-[340px] flex-col items-center ${state === "lost" ? "animate-shake" : ""}`}
+          >
+            <SpeechBubble>{primaryMessage[state]}</SpeechBubble>
             {state === "idle" && (
               <PuffButton variant="start" onClick={startGame}>
                 START
@@ -465,6 +472,32 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
+function SpeechBubble({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative mb-4 animate-burst-in drop-shadow-[0_6px_14px_rgba(40,50,90,0.28)]">
+      <div className="rounded-full border-2 border-white/70 bg-white px-4 py-2 text-[0.85rem] font-bold text-[#2a1f6b] shadow-[inset_0_2px_0_rgba(255,255,255,0.9),inset_0_-2px_3px_rgba(40,50,90,0.08)]">
+        {children}
+      </div>
+      {/* 삼각형 꼬리 (버튼 방향 아래로) */}
+      <svg
+        aria-hidden
+        className="absolute left-1/2 -bottom-[12px] -translate-x-1/2"
+        width="22"
+        height="14"
+        viewBox="0 0 22 14"
+      >
+        <path
+          d="M11 13 L1 1 L21 1 Z"
+          fill="#ffffff"
+          stroke="rgba(255,255,255,0.7)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 function LoseBanner() {
   return (
     <div className="flex flex-col items-center gap-1 animate-burst-in">
@@ -542,12 +575,24 @@ function DecoBubble({ className = "" }: { className?: string }) {
   );
 }
 
-function Coupon({ glow = false }: { glow?: boolean }) {
+function Coupon({
+  glow = false,
+  compact = false,
+}: {
+  glow?: boolean;
+  compact?: boolean;
+}) {
+  const scale = compact ? 0.82 : 1;
+  const h = compact ? 70 : 84;
+  const stampW = compact ? 68 : 84;
+  const badgeSize = compact ? 42 : 52;
+
   return (
     <div
-      className={`pointer-events-auto relative w-full max-w-[300px] ${
+      className={`pointer-events-auto relative w-full transition-all duration-300 ${
         glow ? "animate-float" : ""
       }`}
+      style={{ maxWidth: `${300 * scale}px` }}
     >
       {glow && (
         <div
@@ -558,20 +603,33 @@ function Coupon({ glow = false }: { glow?: boolean }) {
 
       {/* 티켓 본체 */}
       <div
-        className="relative flex h-[84px] w-full overflow-hidden rounded-[22px] shadow-[inset_0_2px_0_rgba(255,255,255,0.85),inset_0_-4px_8px_rgba(170,110,0,0.3),0_6px_0_#c58a00,0_14px_20px_rgba(160,100,0,0.3)]"
+        className="relative flex w-full overflow-hidden rounded-[22px] shadow-[inset_0_2px_0_rgba(255,255,255,0.85),inset_0_-4px_8px_rgba(170,110,0,0.3),0_6px_0_#c58a00,0_14px_20px_rgba(160,100,0,0.3)]"
         style={{
+          height: `${h}px`,
           background:
             "linear-gradient(160deg, #fff6b3 0%, #ffe05a 50%, #ffb400 100%)",
         }}
       >
         {/* 좌측 스탬프 영역 */}
-        <div className="relative flex w-[84px] flex-shrink-0 flex-col items-center justify-center">
-          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),inset_0_-3px_6px_rgba(170,110,0,0.25),0_3px_0_#d19700,0_6px_10px_rgba(160,100,0,0.25)]">
-            <span className="text-[1.55rem] font-black leading-none text-[#a23e00] [text-shadow:0_1px_0_rgba(255,255,255,0.5)]">
+        <div
+          className="relative flex flex-shrink-0 flex-col items-center justify-center"
+          style={{ width: `${stampW}px` }}
+        >
+          <div
+            className="flex items-center justify-center rounded-full bg-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),inset_0_-3px_6px_rgba(170,110,0,0.25),0_3px_0_#d19700,0_6px_10px_rgba(160,100,0,0.25)]"
+            style={{ height: `${badgeSize}px`, width: `${badgeSize}px` }}
+          >
+            <span
+              className="font-black leading-none text-[#a23e00] [text-shadow:0_1px_0_rgba(255,255,255,0.5)]"
+              style={{ fontSize: compact ? "1.3rem" : "1.55rem" }}
+            >
               ₩
             </span>
           </div>
-          <span className="mt-1 text-[0.58rem] font-black uppercase tracking-[0.1em] text-[#a23e00]/80">
+          <span
+            className="mt-1 font-black uppercase tracking-[0.1em] text-[#a23e00]/80"
+            style={{ fontSize: compact ? "0.5rem" : "0.58rem" }}
+          >
             coupon
           </span>
         </div>
@@ -581,7 +639,7 @@ function Coupon({ glow = false }: { glow?: boolean }) {
           aria-hidden
           className="flex h-full flex-col items-center justify-center gap-[5px]"
         >
-          {Array.from({ length: 11 }).map((_, i) => (
+          {Array.from({ length: compact ? 9 : 11 }).map((_, i) => (
             <span
               key={i}
               className="h-[3px] w-[2px] rounded-full bg-[#a23e00]/35"
@@ -591,10 +649,16 @@ function Coupon({ glow = false }: { glow?: boolean }) {
 
         {/* 우측 메인 금액 영역 */}
         <div className="flex flex-1 flex-col items-center justify-center px-2 leading-none">
-          <span className="text-[1.75rem] font-black -tracking-[0.03em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_3px_0_rgba(255,255,255,0.9),0_4px_6px_rgba(140,80,0,0.25)]">
+          <span
+            className="font-black -tracking-[0.03em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_3px_0_rgba(255,255,255,0.9),0_4px_6px_rgba(140,80,0,0.25)]"
+            style={{ fontSize: compact ? "1.45rem" : "1.75rem" }}
+          >
             ₩1,000
           </span>
-          <span className="mt-0.5 text-[0.88rem] font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]">
+          <span
+            className="mt-0.5 font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]"
+            style={{ fontSize: compact ? "0.78rem" : "0.88rem" }}
+          >
             세차 할인 쿠폰
           </span>
         </div>
@@ -606,12 +670,7 @@ function Coupon({ glow = false }: { glow?: boolean }) {
         />
       </div>
 
-      {/* 좌우 사이드 노치 (티켓 반달 컷) */}
-      <span
-        aria-hidden
-        className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[26px] w-[26px] rounded-full bg-[var(--notch-bg,#a9dcf3)] shadow-[inset_2px_0_3px_rgba(0,0,0,0.12)]"
-        style={{ background: "rgba(255, 230, 180, 0.0)" }}
-      />
+      {/* 좌우 사이드 노치 시각 힌트 */}
       <span
         aria-hidden
         className="pointer-events-none absolute left-0 top-1/2 h-[22px] w-[22px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/0 shadow-[inset_0_0_0_2px_rgba(162,62,0,0.25)]"
