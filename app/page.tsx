@@ -391,7 +391,7 @@ function SentModal({
   return (
     <ModalBackdrop>
       <Confetti colors={["#5db7e6", "#7ae2a1", "#ffd24a", "#ffffff"]} />
-      <div className="flex w-full max-w-[340px] flex-col items-center gap-3 animate-burst-in rounded-[32px] border border-white/60 bg-white/92 px-5 py-6 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(30,90,60,0.3)] backdrop-blur-md">
+      <div className="flex w-full max-w-[340px] flex-col items-center gap-3 animate-burst-in rounded-[32px] border-2 border-white bg-gradient-to-b from-white via-[#eafff5] to-[#c9f5dd] px-5 py-6 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(30,90,60,0.35)]">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-[#9fe9c3] to-[#3fb685] shadow-[inset_0_2px_0_rgba(255,255,255,0.7),0_6px_0_#1f7d56,0_10px_16px_rgba(30,125,86,0.4)]">
           <svg
             className="h-8 w-8"
