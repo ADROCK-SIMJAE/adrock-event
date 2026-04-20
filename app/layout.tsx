@@ -22,6 +22,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="preload" as="video" href="/intro.mp4" type="video/mp4" />
+        <link
+          rel="prefetch"
+          as="video"
+          href="/running.mp4"
+          type="video/mp4"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

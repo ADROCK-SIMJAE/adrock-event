@@ -471,8 +471,54 @@ const VIDEO_BY_STATE: Partial<Record<GameState, string>> = {
 
 function BackgroundVideo({ state }: { state: GameState }) {
   const src = VIDEO_BY_STATE[state] ?? "/intro.mp4";
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let cancelled = false;
+
+    const tryPlay = async () => {
+      if (cancelled) return;
+      try {
+        await video.play();
+      } catch {
+        // autoplay 차단 — 사용자 첫 터치/클릭에 한 번만 재시도
+        const retry = () => {
+          video.play().catch(() => {});
+        };
+        document.addEventListener("touchstart", retry, {
+          once: true,
+          passive: true,
+        });
+        document.addEventListener("click", retry, { once: true });
+        document.addEventListener("pointerdown", retry, {
+          once: true,
+          passive: true,
+        });
+      }
+    };
+
+    if (video.readyState >= 2) {
+      tryPlay();
+    } else {
+      const onReady = () => tryPlay();
+      video.addEventListener("canplay", onReady, { once: true });
+      return () => {
+        cancelled = true;
+        video.removeEventListener("canplay", onReady);
+      };
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
   return (
     <video
+      ref={videoRef}
       key={src}
       className="pointer-events-none fixed inset-0 -z-10 h-full w-full object-cover"
       autoPlay
