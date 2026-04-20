@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply font-sans;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: #a9dcf3;
+    color: #1e2320;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .safe-pb {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
