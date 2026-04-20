@@ -144,38 +144,41 @@ export default function Home() {
         {showHint && <HintPill />}
       </section>
 
+      {!isModal && (state === "idle" || state === "running") && (
+        <section className="pointer-events-none fixed inset-x-0 bottom-[130px] z-10 flex flex-col items-center gap-2 px-4">
+          <Pill>{primaryMessage[state]}</Pill>
+          <Coupon />
+        </section>
+      )}
+
+      {!isModal && state === "lost" && (
+        <section className="pointer-events-none fixed inset-x-0 bottom-[130px] z-10 flex flex-col items-center gap-2 px-4 animate-shake">
+          <LoseBanner />
+          <Pill>{primaryMessage[state]}</Pill>
+        </section>
+      )}
+
       {!isModal && (
-        <footer className="safe-pb fixed inset-x-0 bottom-0 z-20 px-4 pb-3 pt-5">
+        <footer className="safe-pb fixed inset-x-0 bottom-0 z-20 px-4 pb-3 pt-4">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-full bg-gradient-to-t from-white/25 via-white/5 to-transparent"
           />
-          <div
-            className={`mx-auto flex w-full max-w-[340px] flex-col items-center gap-2 ${state === "lost" ? "animate-shake" : ""}`}
-          >
-            {state === "lost" ? (
-              <>
-                <LoseBanner />
-                <Pill>{primaryMessage[state]}</Pill>
-                <PuffButton variant="retry" onClick={reset}>
-                  다시 도전
-                </PuffButton>
-              </>
-            ) : (
-              <>
-                <Pill>{primaryMessage[state]}</Pill>
-                <Coupon />
-                {state === "idle" && (
-                  <PuffButton variant="start" onClick={startGame}>
-                    START
-                  </PuffButton>
-                )}
-                {state === "running" && (
-                  <PuffButton variant="stop" onClick={stopGame}>
-                    STOP!
-                  </PuffButton>
-                )}
-              </>
+          <div className="mx-auto flex w-full max-w-[340px] justify-center">
+            {state === "idle" && (
+              <PuffButton variant="start" onClick={startGame}>
+                START
+              </PuffButton>
+            )}
+            {state === "running" && (
+              <PuffButton variant="stop" onClick={stopGame}>
+                STOP!
+              </PuffButton>
+            )}
+            {state === "lost" && (
+              <PuffButton variant="retry" onClick={reset}>
+                다시 도전
+              </PuffButton>
             )}
           </div>
         </footer>
@@ -542,63 +545,81 @@ function DecoBubble({ className = "" }: { className?: string }) {
 function Coupon({ glow = false }: { glow?: boolean }) {
   return (
     <div
-      className={`relative flex h-[66px] w-full max-w-[260px] items-center justify-center gap-2 rounded-[24px] px-3 py-1.5 bg-gradient-to-b from-[#fff6b3] via-[#ffdf4c] to-[#ffb400] shadow-[inset_0_2px_0_rgba(255,255,255,0.85),inset_0_-4px_8px_rgba(170,110,0,0.32),0_5px_0_#c58a00,0_10px_18px_rgba(160,100,0,0.28)] ${
+      className={`pointer-events-auto relative w-full max-w-[300px] ${
         glow ? "animate-float" : ""
       }`}
     >
       {glow && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-8px] -z-10 rounded-[32px] bg-[#fff2a8]/55 blur-xl"
+          className="pointer-events-none absolute inset-[-12px] -z-10 rounded-[40px] bg-[#fff2a8]/60 blur-2xl"
         />
       )}
-      <DecoBubble className="-left-1.5 top-2 h-2.5 w-2.5" />
-      <DecoBubble className="-right-1.5 bottom-1.5 h-3 w-3" />
-      <DecoBubble className="right-4 -top-1.5 h-2 w-2" />
 
-      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1.5px_3px_rgba(170,110,0,0.2)]">
-        <svg
-          className="h-8 w-8"
-          viewBox="0 0 44 44"
+      {/* 티켓 본체 */}
+      <div
+        className="relative flex h-[84px] w-full overflow-hidden rounded-[22px] shadow-[inset_0_2px_0_rgba(255,255,255,0.85),inset_0_-4px_8px_rgba(170,110,0,0.3),0_6px_0_#c58a00,0_14px_20px_rgba(160,100,0,0.3)]"
+        style={{
+          background:
+            "linear-gradient(160deg, #fff6b3 0%, #ffe05a 50%, #ffb400 100%)",
+        }}
+      >
+        {/* 좌측 스탬프 영역 */}
+        <div className="relative flex w-[84px] flex-shrink-0 flex-col items-center justify-center">
+          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white/90 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),inset_0_-3px_6px_rgba(170,110,0,0.25),0_3px_0_#d19700,0_6px_10px_rgba(160,100,0,0.25)]">
+            <span className="text-[1.55rem] font-black leading-none text-[#a23e00] [text-shadow:0_1px_0_rgba(255,255,255,0.5)]">
+              ₩
+            </span>
+          </div>
+          <span className="mt-1 text-[0.58rem] font-black uppercase tracking-[0.1em] text-[#a23e00]/80">
+            coupon
+          </span>
+        </div>
+
+        {/* 점선 perforation */}
+        <div
           aria-hidden
-          xmlns="http://www.w3.org/2000/svg"
+          className="flex h-full flex-col items-center justify-center gap-[5px]"
         >
-          <rect
-            x="4"
-            y="10"
-            width="36"
-            height="24"
-            rx="5"
-            fill="#fffadf"
-            stroke="#a23e00"
-            strokeWidth="2.5"
-          />
-          <path
-            d="M10 14 L34 14"
-            stroke="#a23e00"
-            strokeWidth="1.5"
-            strokeDasharray="2 2"
-          />
-          <text
-            x="22"
-            y="29"
-            textAnchor="middle"
-            fontSize="13"
-            fontWeight="900"
-            fill="#a23e00"
-          >
-            ₩
-          </text>
-        </svg>
+          {Array.from({ length: 11 }).map((_, i) => (
+            <span
+              key={i}
+              className="h-[3px] w-[2px] rounded-full bg-[#a23e00]/35"
+            />
+          ))}
+        </div>
+
+        {/* 우측 메인 금액 영역 */}
+        <div className="flex flex-1 flex-col items-center justify-center px-2 leading-none">
+          <span className="text-[1.75rem] font-black -tracking-[0.03em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_3px_0_rgba(255,255,255,0.9),0_4px_6px_rgba(140,80,0,0.25)]">
+            ₩1,000
+          </span>
+          <span className="mt-0.5 text-[0.88rem] font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]">
+            세차 할인 쿠폰
+          </span>
+        </div>
+
+        {/* 상단 하이라이트 띠 */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[14px] bg-gradient-to-b from-white/55 to-transparent"
+        />
       </div>
-      <div className="flex flex-col items-start leading-[1.02]">
-        <span className="text-[1.45rem] font-black -tracking-[0.02em] text-[#a23e00] [text-shadow:0_2px_0_#fff2a8,0_2.5px_0_rgba(255,255,255,0.9)]">
-          ₩1,000
-        </span>
-        <span className="text-[0.84rem] font-extrabold text-[#a23e00] [text-shadow:0_1px_0_#fff2a8]">
-          세차 할인
-        </span>
-      </div>
+
+      {/* 좌우 사이드 노치 (티켓 반달 컷) */}
+      <span
+        aria-hidden
+        className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[26px] w-[26px] rounded-full bg-[var(--notch-bg,#a9dcf3)] shadow-[inset_2px_0_3px_rgba(0,0,0,0.12)]"
+        style={{ background: "rgba(255, 230, 180, 0.0)" }}
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-1/2 h-[22px] w-[22px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/0 shadow-[inset_0_0_0_2px_rgba(162,62,0,0.25)]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-1/2 h-[22px] w-[22px] translate-x-1/2 -translate-y-1/2 rounded-full bg-white/0 shadow-[inset_0_0_0_2px_rgba(162,62,0,0.25)]"
+      />
     </div>
   );
 }
