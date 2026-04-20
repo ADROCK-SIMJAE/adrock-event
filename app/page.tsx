@@ -130,8 +130,6 @@ export default function Home() {
     <main className="relative min-h-[100dvh] overflow-hidden">
       <BackgroundVideo state={state} />
 
-      <CharacterOverlay />
-
       <section className="flex flex-col items-center gap-2.5 px-4 pt-[6dvh]">
         <TimerDisplay value={displayTime} pulsing={state === "running"} />
         {showHint && <HintPill />}
@@ -273,31 +271,6 @@ function BackgroundVideo({ state }: { state: GameState }) {
     >
       <source src={src} type="video/mp4" />
     </video>
-  );
-}
-
-function CharacterOverlay() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed bottom-[20dvh] left-1/2 z-10 h-[34dvh] -translate-x-1/2 animate-float"
-      style={{
-        aspectRatio: "1 / 1",
-        background:
-          "radial-gradient(closest-side, rgba(255,250,230,0.95) 0%, rgba(255,250,230,0.55) 45%, rgba(255,250,230,0) 72%)",
-      }}
-    >
-      <video
-        className="h-full w-full object-contain [filter:drop-shadow(0_0_1px_rgba(15,20,45,1))_drop-shadow(0_10px_18px_rgba(15,20,45,0.6))]"
-        autoPlay
-        loop
-        muted
-        playsInline
-      >
-        <source src="/character.webm" type="video/webm" />
-        <source src="/character.mov" type='video/mp4; codecs="hvc1"' />
-      </video>
-    </div>
   );
 }
 
