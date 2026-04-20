@@ -116,7 +116,7 @@ export default function Home() {
     idle: "정확히 맞추면 쿠폰 당첨!",
     running: "지금! STOP 을 눌러요",
     won: `${displayTime}초 딱 맞췄어요!`,
-    lost: "범위를 놓쳤어요. 다시!",
+    lost: "아쉽게 범위를 놓쳤어요",
     phone: "쿠폰 받으실 번호를 입력해주세요",
     sent: "쿠폰을 발송했어요!",
   };
@@ -153,23 +153,29 @@ export default function Home() {
           <div
             className={`mx-auto flex w-full max-w-[340px] flex-col items-center gap-2 ${state === "lost" ? "animate-shake" : ""}`}
           >
-            <Pill>{primaryMessage[state]}</Pill>
-            <Coupon />
-
-            {state === "idle" && (
-              <PuffButton variant="start" onClick={startGame}>
-                START
-              </PuffButton>
-            )}
-            {state === "running" && (
-              <PuffButton variant="stop" onClick={stopGame}>
-                STOP!
-              </PuffButton>
-            )}
-            {state === "lost" && (
-              <PuffButton variant="retry" onClick={reset}>
-                다시 도전
-              </PuffButton>
+            {state === "lost" ? (
+              <>
+                <LoseBanner />
+                <Pill>{primaryMessage[state]}</Pill>
+                <PuffButton variant="retry" onClick={reset}>
+                  다시 도전
+                </PuffButton>
+              </>
+            ) : (
+              <>
+                <Pill>{primaryMessage[state]}</Pill>
+                <Coupon />
+                {state === "idle" && (
+                  <PuffButton variant="start" onClick={startGame}>
+                    START
+                  </PuffButton>
+                )}
+                {state === "running" && (
+                  <PuffButton variant="stop" onClick={stopGame}>
+                    STOP!
+                  </PuffButton>
+                )}
+              </>
             )}
           </div>
         </footer>
@@ -453,6 +459,56 @@ function Pill({ children }: { children: React.ReactNode }) {
     <span className="rounded-full bg-white/85 px-4 py-1.5 text-[0.9rem] font-bold text-[#4a3f8a] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_3px_8px_rgba(80,70,140,0.22)] backdrop-blur-sm">
       {children}
     </span>
+  );
+}
+
+function LoseBanner() {
+  return (
+    <div className="flex flex-col items-center gap-1 animate-burst-in">
+      <div className="relative">
+        <svg
+          viewBox="0 0 80 80"
+          className="h-[72px] w-[72px] drop-shadow-[0_6px_12px_rgba(30,40,90,0.35)]"
+          aria-hidden
+        >
+          <circle cx="40" cy="40" r="34" fill="#8a98b8" stroke="#ffffff" strokeWidth="4" />
+          <circle cx="40" cy="40" r="30" fill="url(#loseGrad)" />
+          <ellipse cx="29" cy="36" rx="3" ry="4" fill="#1a2c45" />
+          <ellipse cx="51" cy="36" rx="3" ry="4" fill="#1a2c45" />
+          <path
+            d="M28 55 Q40 45 52 55"
+            stroke="#1a2c45"
+            strokeWidth="3"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M26 18 Q29 22 32 18"
+            stroke="#1a2c45"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M48 18 Q51 22 54 18"
+            stroke="#1a2c45"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <defs>
+            <linearGradient id="loseGrad" x1="40" y1="10" x2="40" y2="70" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#c4ccdc" />
+              <stop offset="1" stopColor="#8a98b8" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span className="absolute -top-1 -right-2 text-base">💧</span>
+      </div>
+      <h2 className="text-[1.65rem] font-black italic -tracking-[0.02em] text-[#4a3f8a] [paint-order:stroke_fill] [-webkit-text-stroke:4px_#ffffff] [text-shadow:0_3px_0_rgba(200,210,230,0.9),0_5px_10px_rgba(80,90,130,0.3)]">
+        아쉬워요!
+      </h2>
+    </div>
   );
 }
 
