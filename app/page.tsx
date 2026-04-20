@@ -37,6 +37,7 @@ export default function Home() {
   const [time, setTime] = useState(0);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [showIntro, setShowIntro] = useState(true);
   const rafRef = useRef<number | null>(null);
   const startAtRef = useRef<number>(0);
 
@@ -124,7 +125,8 @@ export default function Home() {
   const showHint =
     state === "idle" || state === "running" || state === "lost";
 
-  const isModal = state === "won" || state === "phone" || state === "sent";
+  const isModal =
+    state === "won" || state === "phone" || state === "sent" || showIntro;
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden">
@@ -144,20 +146,8 @@ export default function Home() {
         {showHint && <HintPill />}
       </section>
 
-      {!isModal && (state === "idle" || state === "running") && (
-        <section
-          className={`pointer-events-none fixed inset-x-0 z-10 flex justify-center px-4 transition-all duration-300 ${
-            state === "running"
-              ? "bottom-[28dvh]"
-              : "bottom-[150px]"
-          }`}
-        >
-          <Coupon compact={state === "running"} />
-        </section>
-      )}
-
       {!isModal && state === "lost" && (
-        <section className="pointer-events-none fixed inset-x-0 bottom-[150px] z-10 flex flex-col items-center gap-2 px-4 animate-shake">
+        <section className="pointer-events-none fixed inset-x-0 bottom-[160px] z-10 flex flex-col items-center gap-2 px-4 animate-shake">
           <LoseBanner />
         </section>
       )}
@@ -191,6 +181,8 @@ export default function Home() {
         </footer>
       )}
 
+      {showIntro && <IntroModal onClose={() => setShowIntro(false)} />}
+
       {state === "won" && (
         <WinModal
           displayTime={displayTime}
@@ -220,14 +212,67 @@ function ModalBackdrop({ children }: { children: React.ReactNode }) {
     <div
       role="dialog"
       aria-modal
-      className="safe-pb fixed inset-0 z-40 flex flex-col items-center justify-end px-4 pb-6 pt-[18dvh] animate-fade-backdrop"
+      className="safe-pb fixed inset-0 z-40 flex flex-col items-center justify-center px-4 py-6 animate-fade-backdrop"
     >
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-black/0 via-black/15 to-black/45 backdrop-blur-[2px]"
+        className="absolute inset-0 -z-10 bg-black/20"
       />
       {children}
     </div>
+  );
+}
+
+function IntroModal({ onClose }: { onClose: () => void }) {
+  return (
+    <ModalBackdrop>
+      <div className="flex w-full max-w-[340px] flex-col items-center gap-4 animate-burst-in rounded-[32px] border border-white/60 bg-white/95 px-5 py-6 shadow-[inset_0_2px_0_rgba(255,255,255,0.95),0_18px_40px_rgba(30,40,90,0.35)] backdrop-blur-md">
+        <div className="flex flex-col items-center gap-1">
+          <span className="rounded-full bg-gradient-to-b from-[#dac9f7] to-[#a58fe2] px-3.5 py-1 text-[0.72rem] font-black uppercase tracking-wider text-white [text-shadow:0_1px_0_rgba(50,30,110,0.4)]">
+            game
+          </span>
+          <h2 className="text-[1.7rem] font-black -tracking-[0.02em] text-[#2a1f6b]">
+            세차 뽑기
+          </h2>
+        </div>
+
+        <Coupon glow />
+
+        <ul className="flex w-full flex-col gap-2 rounded-2xl bg-white/70 px-4 py-3 text-[0.88rem] font-bold text-[#2a1f6b] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_3px_rgba(40,50,90,0.06)]">
+          <li className="flex items-start gap-2">
+            <span className="mt-px text-[1rem]">⏱️</span>
+            <span>
+              START 누르면 타이머가 <strong className="text-[#6c5dc7]">빠르게</strong> 올라가요
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="mt-px text-[1rem]">🎯</span>
+            <span>
+              <strong className="text-[#d17b00]">3.10 ~ 3.30초</strong> 사이에
+              STOP!
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="mt-px text-[1rem]">🎁</span>
+            <span>
+              맞추면 <strong className="text-[#b94a00]">₩1,000 세차 할인</strong>
+              쿠폰 당첨!
+            </span>
+          </li>
+        </ul>
+
+        <PuffButton variant="start" onClick={onClose}>
+          시작하기
+        </PuffButton>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mt-1 text-[0.8rem] font-bold text-[#4a3f8a]/70 underline-offset-2 hover:underline"
+        >
+          닫기
+        </button>
+      </div>
+    </ModalBackdrop>
   );
 }
 
