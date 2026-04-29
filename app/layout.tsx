@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "세차 뽑기",
-  description: "정확히 맞추면 쿠폰 당첨! 세차 뽑기 이벤트",
+  title: "오늘의 혜택존",
+  description: "매일 새로운 이벤트! 주유·세차·드라이브·혜택 박스 응모하고 쿠폰 당첨받기",
 };
 
 export const viewport: Viewport = {

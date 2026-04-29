@@ -9,6 +9,10 @@ coverage
 
 # OMC tool state
 .omc/
+.claude/
+
+# TS build cache
+tsconfig.tsbuildinfo
 
 # OS
 .DS_Store
