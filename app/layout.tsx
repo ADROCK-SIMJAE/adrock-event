@@ -4,6 +4,26 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "오늘의 혜택존",
   description: "매일 새로운 이벤트! 주유·세차·드라이브·혜택 박스 응모하고 쿠폰 당첨받기",
+  openGraph: {
+    title: "오늘의 혜택존",
+    description: "매일 새로운 이벤트! 주유·세차·드라이브·혜택 박스 응모하고 쿠폰 당첨받기",
+    type: "website",
+    locale: "ko_KR",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 1200,
+        alt: "오늘의 혜택존",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "오늘의 혜택존",
+    description: "매일 새로운 이벤트! 주유·세차·드라이브·혜택 박스 응모하고 쿠폰 당첨받기",
+    images: ["/og-image.png"],
+  },
 };
 
 export const viewport: Viewport = {
